@@ -1,7 +1,7 @@
 import { Handbag } from "lucide-react";
 import Link from "next/link";
 import { SearchInput } from "./search-input";
-import { AuthButton } from "./auth-button";
+import { AuthButton } from "../../../auth/ui/components/auth-button";
 
 export const HomeNavbar = () => {
   return (
