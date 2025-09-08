@@ -13,6 +13,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -66,6 +67,7 @@ export const SignInViews = () => {
                           autoComplete="username"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -82,6 +84,7 @@ export const SignInViews = () => {
                           placeholder="Enter your password"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
