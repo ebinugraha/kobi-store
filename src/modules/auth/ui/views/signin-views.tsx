@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 export const SignInViews = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,8 +34,28 @@ export const SignInViews = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof signInSchemas>) => {
-    console.log(data);
+  const onSubmit = (
+    data?: z.infer<typeof signInSchemas>,
+    options?: "social" | "email"
+  ) => {
+    if (options === "email" && data) {
+      authClient.signIn.email(
+        {
+          email: data.email,
+          password: data.password,
+        },
+        {
+          onError: (ctx) => {
+            toast.error(ctx.error.message);
+          },
+        }
+      );
+    } else {
+      // Handle social login
+      authClient.signIn.social({
+        provider: "google",
+      });
+    }
   };
 
   return (
@@ -53,7 +75,9 @@ export const SignInViews = () => {
         <CardContent className="w-full flex flex-col gap-5">
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit(() =>
+                onSubmit(form.getValues(), "email")
+              )}
               className="flex flex-col gap-4"
             >
               <FormField
@@ -129,6 +153,7 @@ export const SignInViews = () => {
           <Button
             className="w-full rounded-lg border flex items-center gap-2 hover:bg-gray-50"
             variant="outline"
+            onClick={() => onSubmit(undefined, "social")}
           >
             <FcGoogle size={20} />
             Sign in with Google
