@@ -1,11 +1,8 @@
 import { BannerSection } from "@/modules/home/ui/sections/banner-section";
+import { HomeView } from "@/modules/home/ui/views/home-view";
 
 const Page = () => {
-  return (
-    <div className="w-full max-w-7xl mx-auto py-4">
-      <BannerSection />
-    </div>
-  );
+  return <HomeView />;
 };
 
 export default Page;
