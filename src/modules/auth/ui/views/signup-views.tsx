@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 export const SignUpViews = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,8 +36,28 @@ export const SignUpViews = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof signUpSchemas>) => {
-    console.log(data);
+  const onSubmit = (
+    data?: z.infer<typeof signInSchemas>,
+    options?: "social" | "email"
+  ) => {
+    if (options === "email" && data) {
+      authClient.signIn.email(
+        {
+          email: data.email,
+          password: data.password,
+        },
+        {
+          onError: (ctx) => {
+            toast.error(ctx.error.message);
+          },
+        }
+      );
+    } else {
+      // Handle social login
+      authClient.signIn.social({
+        provider: "google",
+      });
+    }
   };
 
   return (
@@ -56,7 +78,9 @@ export const SignUpViews = () => {
           <div className="flex flex-col gap-2">
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={form.handleSubmit(() =>
+                  onSubmit(form.getValues(), "email")
+                )}
                 className="flex flex-col gap-4"
               >
                 <FormField
@@ -169,7 +193,11 @@ export const SignUpViews = () => {
             <div className="w-full h-[0.2px] bg-muted-foreground" />
           </div>
           <div className="flex flex-col gap-3">
-            <Button className="w-full" variant={"outline"}>
+            <Button
+              className="w-full"
+              variant={"outline"}
+              onClick={() => onSubmit(undefined, "social")}
+            >
               <FcGoogle />
               Google
             </Button>
