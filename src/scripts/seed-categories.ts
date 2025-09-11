@@ -7,6 +7,15 @@ import { categories } from "../db/schema/categories";
 const categoriesData = [
   { name: "Phone", slug: "phone" },
   { name: "Batik", slug: "batik" },
+  { name: "Coffe", slug: "coffe" },
+  { name: "Electronic", slug: "electronics" },
+  { name: "Motorcycle", slug: "motorcycle" },
+  { name: "Computer", slug: "pc" },
+  { name: "Alat mandi", slug: "alat-mandi" },
+  { name: "Sepatu", slug: "sepatu" },
+  { name: "Tas", slug: "tas" },
+  { name: "Vas bunga", slug: "vas" },
+  { name: "Dompet", slug: "wallet" },
 ];
 
 async function main() {

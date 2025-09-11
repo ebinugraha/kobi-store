@@ -1,9 +1,14 @@
-import { BannerSection } from "@/modules/home/ui/sections/banner-section";
 import { HomeView } from "@/modules/home/ui/views/home-view";
-import { prefetch, trpc } from "@/trpc/server";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 const Page = async () => {
-  return <HomeView />;
+  prefetch(trpc.categories.getMany.queryOptions());
+
+  return (
+    <HydrateClient>
+      <HomeView />
+    </HydrateClient>
+  );
 };
 
 export default Page;
