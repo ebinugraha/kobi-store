@@ -27,6 +27,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.5",
+    "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.542.0",
     "next": "15.5.2",
@@ -40,20 +41,22 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "uploadthing": "^7.7.4",
+    "uuid": "^13.0.0",
     "zod": "^4.1.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^20.19.13",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.4",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "tsx": "^4.20.5",
     "tw-animate-css": "^1.3.8",
-    "typescript": "^5"
+    "typescript": "^5.9.2"
   }
 }
