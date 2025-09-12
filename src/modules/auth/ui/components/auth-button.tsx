@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { UserButton } from "./user-button";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
+import { HomeNavbarMenu } from "@/modules/home/ui/components/home-navbar-menu";
 
 export const AuthButton = async () => {
   const session = await auth.api.getSession({
@@ -14,7 +14,7 @@ export const AuthButton = async () => {
   return (
     <>
       {session ? (
-        <UserButton />
+        <HomeNavbarMenu name={session.user.name} />
       ) : (
         <div className="flex items-center gap-2">
           <Link href={"/sign-up"}>
