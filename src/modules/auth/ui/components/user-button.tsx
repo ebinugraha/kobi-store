@@ -1,7 +1,5 @@
 "use client";
 
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +12,7 @@ import { UserAvatar } from "./user-avatar";
 import { authClient } from "@/lib/auth-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { LogOut, Store } from "lucide-react";
+import { LogOut, ShoppingCart, Store } from "lucide-react";
 
 export const UserButton = () => {
   const { data, isPending } = authClient.useSession();
@@ -26,7 +24,7 @@ export const UserButton = () => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger>
-        <UserAvatar size={"lg"} />
+        <UserAvatar size={"default"} />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side="bottom" className="w-72">
         <DropdownMenuLabel>
@@ -34,7 +32,7 @@ export const UserButton = () => {
             <UserAvatar size={"lg"} />
             <div className="flex flex-col">
               <span className="font-medium text-sm">{data.user.name}</span>
-              <span className="text-sm text-muted-foreground font-normal truncate">
+              <span className="text-xs text-muted-foreground font-normal truncate">
                 {data.user.email}
               </span>
               <Link
@@ -47,9 +45,18 @@ export const UserButton = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem
+          asChild
+          className="flex cursor-pointer pl-4 text-muted-foreground hover:text-black"
+        >
+          <Link href={"/dashboard"}>
+            <Store className="h-4 w-4 text-blue-500" />
+            <span className="ml-4">Buka toko</span>
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem className="flex cursor-pointer pl-4 text-muted-foreground hover:text-black">
-          <Store className="h-4 w-4 text-blue-500" />
-          <span className="ml-4">Buka toko</span>
+          <ShoppingCart className="h-4 w-4" />
+          <span className="ml-4">Keranjang</span>
         </DropdownMenuItem>
         <DropdownMenuItem className="flex cursor-pointer pl-4 text-muted-foreground hover:text-black">
           <LogOut className="h-4 w-4 text-destructive" />
