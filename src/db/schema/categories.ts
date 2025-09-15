@@ -1,5 +1,7 @@
+import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { v4 as uuid } from "uuid";
+import { products } from "./product";
 
 export const categories = pgTable("categories", {
   id: text("id")
@@ -15,3 +17,7 @@ export const categories = pgTable("categories", {
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
+
+export const categoriesRelation = relations(categories, ({ one, many }) => ({
+  products: many(products),
+}));

@@ -12,7 +12,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
     redirect("/");
   }
 
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return <>{children}</>;
 };
 
 export default Layout;
