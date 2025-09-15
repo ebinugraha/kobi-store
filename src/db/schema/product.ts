@@ -19,9 +19,11 @@ export const products = pgTable("products", {
   description: text("description").notNull(),
   price: decimal("price").notNull(),
   isAvaible: boolean("is_avaible").default(false),
-  userId: text("user_id").references(() => user.id, {
-    onDelete: "cascade",
-  }),
+  userId: text("user_id")
+    .references(() => user.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   categoryId: text("category_id").references(() => categories.id),
   createdAt: timestamp("created_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())

@@ -25,8 +25,12 @@ import { UserAvatar } from "@/modules/auth/ui/components/user-avatar";
 import { productInsertSchema } from "@/modules/products/schema";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Globe, Loader2 } from "lucide-react";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { Globe, Loader2, X } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { UploadDropzone } from "@/lib/uploadthing";
 import z from "zod";
@@ -40,6 +44,8 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type CreateFormSectionProps = {
   form: UseFormReturn<z.infer<typeof productInsertSchema>>;
@@ -48,17 +54,31 @@ type CreateFormSectionProps = {
 
 export const CreateFormSection = ({ form, name }: CreateFormSectionProps) => {
   const trpc = useTRPC();
-
+  const queryClient = useQueryClient();
+  const router = useRouter();
   // Perbaikan 1: Hapus `useState` untuk gambar. Kita akan serahkan ke react-hook-form.
   // const [images, setImages] = useState<{ url: string; order: number }[]>([]);
 
   // Ambil state gambar dari form untuk ditampilkan di UI
   const images = form.watch("images");
 
+  const product = useMutation(
+    trpc.products.create.mutationOptions({
+      onSuccess: async () => {
+        // TODO revalidate get many products
+        await queryClient.invalidateQueries();
+        form.reset();
+        router.push("/dashboard");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
+
   // Perbaikan 3: Ubah `handleSubmit` untuk memanggil mutation
-  const handleSubmit = (values: z.infer<typeof productInsertSchema>) => {
-    // `values` dari RHF sudah berisi gambar, tidak perlu inject manual
-    console.log(values);
+  const handleSubmit = async (values: z.infer<typeof productInsertSchema>) => {
+    await product.mutateAsync(values);
   };
 
   const handleImageUpload = (res: any) => {
@@ -79,11 +99,17 @@ export const CreateFormSection = ({ form, name }: CreateFormSectionProps) => {
 
   return (
     <div className="flex flex-col gap-y-4 w-full p-6">
-      <div className="flex flex-col">
-        <span className="text-xs text-muted-foreground">Tambah produk</span>
-        <h1 className="text-lg font-bold">Produk dijual</h1>
+      <div className="flex items-center gap-x-4">
+        <Link href={"/dashboard"}>
+          <X />
+        </Link>
+        <Image src={"/logo.svg"} alt="logo" height={35} width={35} />
+        <div className="flex flex-col">
+          <h1 className="text-lg font-bold">Produk dijual</h1>
+          <span className="text-xs text-muted-foreground">Tambah produk</span>
+        </div>
       </div>
-      <div className="flex gap-x-2 items-center">
+      <div className="flex gap-x-2 mt-5 items-center">
         <UserAvatar size={"lg"} />
         <div className="flex justify-center flex-col gap-y-1">
           <span className="text-sm font-bold">{name}</span>
@@ -97,42 +123,44 @@ export const CreateFormSection = ({ form, name }: CreateFormSectionProps) => {
         {/* Perbaikan 5: Hapus <div> yang tidak perlu, form bisa langsung jadi flex container */}
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="flex flex-col gap-y-2"
+          className="flex flex-col gap-y-4"
         >
-          <h1 className="text-sm font-medium">Gambar Produk</h1>
-          <UploadDropzone
-            endpoint="imageUploader"
-            onClientUploadComplete={handleImageUpload}
-            onUploadError={(error: Error) => {
-              toast.error("Gagal upload gambar: " + error.message);
-            }}
-            className="ut-label:text-sm ut-allowed-content:ut-uploading:text-red-300 py-6 border-2 border-dashed"
-          />
+          <div>
+            <h1 className="text-sm font-medium">Gambar Produk</h1>
+            <UploadDropzone
+              endpoint="imageUploader"
+              onClientUploadComplete={handleImageUpload}
+              onUploadError={(error: Error) => {
+                toast.error("Gagal upload gambar: " + error.message);
+              }}
+              className="ut-label:text-sm ut-allowed-content:ut-uploading:text-red-300 py-6 border-2 border-dashed"
+            />
 
-          {images.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-              {images.map((image, index) => (
-                <div key={index} className="relative group">
-                  <Image
-                    src={image.url}
-                    alt={`Product image ${index + 1}`}
-                    width={125}
-                    height={125}
-                    className="rounded-md object-cover w-full h-32"
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
-                    onClick={() => removeImage(index)}
-                  >
-                    <span className="text-lg">×</span>
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
+            {images.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                {images.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <Image
+                      src={image.url}
+                      alt={`Product image ${index + 1}`}
+                      width={125}
+                      height={125}
+                      className="rounded-md object-cover w-full h-32"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
+                      onClick={() => removeImage(index)}
+                    >
+                      <span className="text-lg">×</span>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <FormField
             name="name"
             control={form.control}
@@ -221,7 +249,7 @@ export const CreateFormSection = ({ form, name }: CreateFormSectionProps) => {
             )}
           />
           {/* Perbaikan 7: Tambahkan status loading/disabled pada tombol */}
-          <Button type="submit">Tambah Produk"</Button>
+          <Button type="submit">Tambah Produk</Button>
         </form>
       </Form>
     </div>
