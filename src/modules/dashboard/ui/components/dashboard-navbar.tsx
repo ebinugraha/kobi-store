@@ -3,6 +3,8 @@ import { AuthButton } from "@/modules/auth/ui/components/auth-button";
 import { Handbag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { DashboardNavbarMenu } from "./dashboard-navbar-menu";
+import { authClient } from "@/lib/auth-client";
 
 export const DashboardNavbar = () => {
   return (
@@ -16,7 +18,7 @@ export const DashboardNavbar = () => {
           </Link>
         </div>
         <div className="flex">
-          <AuthButton />
+          <DashboardNavbarMenu />
         </div>
       </div>
     </nav>
