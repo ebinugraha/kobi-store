@@ -7,6 +7,38 @@ import { and, desc, eq, inArray, lt, or } from "drizzle-orm";
 import z from "zod";
 
 export const productRouter = createTRPCRouter({
+  getOne: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .query(async ({ input, ctx }) => {
+      const { id } = input;
+      const { id: userId } = ctx.session.user;
+
+      const [product] = await db
+        .select()
+        .from(products)
+        .where(and(eq(products.userId, userId), eq(products.id, id)));
+
+      if (!product) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Product not found",
+        });
+      }
+
+      const productWithImage = await db
+        .select()
+        .from(productImages)
+        .where(eq(productImages.productId, product.id));
+
+      const result = {
+        product: {
+          ...product,
+          productImages: productWithImage || [],
+        },
+      };
+
+      return result;
+    }),
   getMany: protectedProcedure
     .input(
       z.object({

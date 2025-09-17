@@ -144,7 +144,13 @@ const ProductSectionSuspense = () => {
               </TableRow>
             ) : (
               products.map((product) => (
-                <TableRow key={product.id} className="hover:bg-gray-50">
+                <TableRow
+                  key={product.id}
+                  className="hover:bg-gray-50"
+                  onClick={() =>
+                    router.push(`/dashboard/product/${product.id}`)
+                  }
+                >
                   {/* Product Images */}
                   <TableCell className="pl-6">
                     <div className="flex gap-2">
