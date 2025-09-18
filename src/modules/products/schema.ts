@@ -18,3 +18,16 @@ export const productInsertSchema = z.object({
     )
     .min(1),
 });
+
+export const productUpdateSchema = productInsertSchema.extend({
+  id: z.string().min(1, "Id product harus diisi"),
+  images: z
+    .array(
+      z.object({
+        id: z.string(),
+        url: z.string(),
+        order: z.number().default(0),
+      })
+    )
+    .min(1),
+});
