@@ -4,7 +4,6 @@ import { authClient } from "@/lib/auth-client";
 import { CreateFormSection } from "../section/create-form-section";
 import { PreviewSection } from "../section/create-preview-section";
 import { productInsertSchema } from "@/modules/products/schema";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 

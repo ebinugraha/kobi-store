@@ -1,6 +1,9 @@
 import db from "@/db";
 import { productImages, products } from "@/db/schema";
-import { productInsertSchema } from "@/modules/products/schema";
+import {
+  productInsertSchema,
+  productUpdateSchema,
+} from "@/modules/products/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, inArray, lt, or } from "drizzle-orm";
@@ -31,10 +34,8 @@ export const productRouter = createTRPCRouter({
         .where(eq(productImages.productId, product.id));
 
       const result = {
-        product: {
-          ...product,
-          productImages: productWithImage || [],
-        },
+        ...product,
+        productImages: productWithImage || [],
       };
 
       return result;
@@ -136,5 +137,52 @@ export const productRouter = createTRPCRouter({
       await db.insert(productImages).values(imagesData);
 
       return product;
+    }),
+  update: protectedProcedure
+    .input(productUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { id: userId } = ctx.session.user;
+
+      if (!input.id) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      const [updatedProduct] = await db
+        .update(products)
+        .set({
+          name: input.name,
+          description: input.description,
+          isAvailable: input.isAvailable,
+          price: input.price,
+          categoryId: input.categoryId,
+          updatedAt: new Date(),
+        })
+        .where(and(eq(products.id, input.id), eq(products.userId, userId)))
+        .returning();
+
+      const imagesData = input.images.map((image) => ({
+        id: image.id,
+        url: image.url,
+        order: image.order,
+        productId: updatedProduct.id,
+      }));
+
+      imagesData.map(async (image) => {
+        await db
+          .update(productImages)
+          .set({
+            order: image.order,
+            url: image.url,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(productImages.id, image.id),
+              eq(productImages.productId, image.productId)
+            )
+          );
+      });
+
+      return updatedProduct;
     }),
 });

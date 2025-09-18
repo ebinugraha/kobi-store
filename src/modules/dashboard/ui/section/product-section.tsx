@@ -195,7 +195,7 @@ const ProductSectionSuspense = () => {
 
                   {/* Visibility */}
                   <TableCell>
-                    {product.isAvaible ? (
+                    {product.isAvailable ? (
                       <Badge variant="default">
                         <Globe /> Visible
                       </Badge>

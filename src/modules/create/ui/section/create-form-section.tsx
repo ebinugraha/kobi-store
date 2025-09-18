@@ -46,6 +46,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { DEFAULT_LIMIT } from "@/constant";
 
 type CreateFormSectionProps = {
   form: UseFormReturn<z.infer<typeof productInsertSchema>>;
@@ -65,8 +66,9 @@ export const CreateFormSection = ({ form, name }: CreateFormSectionProps) => {
   const product = useMutation(
     trpc.products.create.mutationOptions({
       onSuccess: async () => {
-        // TODO revalidate get many products
-        await queryClient.invalidateQueries();
+        await queryClient.invalidateQueries(
+          trpc.products.getMany.queryOptions({ limit: DEFAULT_LIMIT })
+        );
         form.reset();
         router.push("/dashboard");
       },

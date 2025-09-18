@@ -18,7 +18,7 @@ export const products = pgTable("products", {
   name: text("name").notNull(),
   description: text("description").notNull(),
   price: decimal("price").notNull(),
-  isAvaible: boolean("is_avaible").default(false),
+  isAvailable: boolean("is_available").default(false),
   userId: text("user_id")
     .references(() => user.id, {
       onDelete: "cascade",

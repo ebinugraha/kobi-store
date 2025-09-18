@@ -5,12 +5,21 @@ import { productInsertSchema } from "@/modules/products/schema";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MoreVertical, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { ProductDetailForm } from "../section/product-detail-form";
+import { ProductPreviewSection } from "../section/product-preview-section";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface ProductDetailViewProps {
   productId: string;
@@ -31,27 +40,31 @@ const ProductDetailViewSuspense = ({ productId }: ProductDetailViewProps) => {
 
   const product = useSuspenseQuery(
     trpc.products.getOne.queryOptions({ id: productId })
-  );
+  ).data;
 
   // 1. Inisialisasi useForm ada di level tertinggi (halaman ini).
   const form = useForm<z.infer<typeof productInsertSchema>>({
     // Mode 'onChange' agar preview langsung update saat mengetik
     mode: "onChange",
     defaultValues: {
-      name: "",
-      description: "",
-      price: "",
-      isAvailable: true,
-      categoryId: "",
-      images: [],
+      name: product.name ?? "",
+      description: product.description ?? "",
+      price: product.price ?? "",
+      isAvailable: product.isAvailable ?? true,
+      categoryId: product.categoryId ?? "",
+      images:
+        product.productImages?.map((img) => ({
+          url: img.url,
+          order: img.order ?? 0, // kalau null, jadikan 0
+        })) ?? [],
     },
   });
 
   const { data } = authClient.useSession();
 
   return (
-    <main className="flex flex-col gap-y-6 pt-2.5">
-      <div className="px-4 flex items-center gap-x-4">
+    <main className="flex flex-col pt-2.5">
+      <div className="px-4 flex items-center gap-x-4 border-b pb-2.5 ">
         <Link href={"/dashboard/product"}>
           <ArrowLeft size={20} />
         </Link>
@@ -61,11 +74,28 @@ const ProductDetailViewSuspense = ({ productId }: ProductDetailViewProps) => {
             Atur detail product anda
           </p>
         </div>
+        <div className="ml-auto">
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant={"ghost"} size={"icon"}>
+                <MoreVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="bottom">
+              <DropdownMenuItem onClick={() => {}}>
+                <TrashIcon className="size-4 mr-2 text-destructive" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3">
-        <div className="">{/* Product detail form */}test1</div>
-        <div className="lg:col-span-2 relative">
-          {/* Product Pratinjau */}test2
+        <div className="">
+          <ProductDetailForm name={data?.user.name} form={form} />
+        </div>
+        <div className="lg:col-span-2">
+          <ProductPreviewSection form={form} name={data?.user.name} />
         </div>
       </div>
     </main>
