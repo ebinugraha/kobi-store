@@ -102,7 +102,7 @@ export const CreateFormSection = ({ form, name }: CreateFormSectionProps) => {
   return (
     <div className="flex flex-col gap-y-4 w-full p-6">
       <div className="flex items-center gap-x-4">
-        <Link href={"/dashboard"}>
+        <Link href={"/dashboard/product"}>
           <X />
         </Link>
         <Image src={"/logo.svg"} alt="logo" height={35} width={35} />

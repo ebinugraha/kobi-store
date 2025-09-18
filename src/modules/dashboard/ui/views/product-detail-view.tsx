@@ -8,7 +8,7 @@ import {
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, MoreVertical, TrashIcon } from "lucide-react";
+import { ArrowLeft, Eye, MoreVertical, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -87,6 +87,12 @@ const ProductDetailViewSuspense = ({ productId }: ProductDetailViewProps) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" side="bottom">
+              <DropdownMenuItem asChild>
+                <Link href={`/product/${productId}`}>
+                  <Eye className="size-4 mr-2" />
+                  Live produk
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => {}}>
                 <TrashIcon className="size-4 mr-2 text-destructive" />
                 Delete
