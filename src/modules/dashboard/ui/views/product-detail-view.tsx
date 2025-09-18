@@ -1,7 +1,10 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
-import { productInsertSchema } from "@/modules/products/schema";
+import {
+  productInsertSchema,
+  productUpdateSchema,
+} from "@/modules/products/schema";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -43,10 +46,11 @@ const ProductDetailViewSuspense = ({ productId }: ProductDetailViewProps) => {
   ).data;
 
   // 1. Inisialisasi useForm ada di level tertinggi (halaman ini).
-  const form = useForm<z.infer<typeof productInsertSchema>>({
+  const form = useForm<z.infer<typeof productUpdateSchema>>({
     // Mode 'onChange' agar preview langsung update saat mengetik
     mode: "onChange",
     defaultValues: {
+      id: product.id,
       name: product.name ?? "",
       description: product.description ?? "",
       price: product.price ?? "",
@@ -54,6 +58,7 @@ const ProductDetailViewSuspense = ({ productId }: ProductDetailViewProps) => {
       categoryId: product.categoryId ?? "",
       images:
         product.productImages?.map((img) => ({
+          id: img.id,
           url: img.url,
           order: img.order ?? 0, // kalau null, jadikan 0
         })) ?? [],
@@ -92,7 +97,11 @@ const ProductDetailViewSuspense = ({ productId }: ProductDetailViewProps) => {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3">
         <div className="">
-          <ProductDetailForm name={data?.user.name} form={form} />
+          <ProductDetailForm
+            name={data?.user.name}
+            form={form}
+            productId={productId}
+          />
         </div>
         <div className="lg:col-span-2">
           <ProductPreviewSection form={form} name={data?.user.name} />

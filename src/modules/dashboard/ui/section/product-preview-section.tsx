@@ -3,13 +3,16 @@
 import { Button } from "@/components/ui/button"; // BARU: Import Button
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/modules/auth/ui/components/user-avatar";
-import { productInsertSchema } from "@/modules/products/schema";
+import {
+  productInsertSchema,
+  productUpdateSchema,
+} from "@/modules/products/schema";
 import Image from "next/image";
 import { UseFormReturn } from "react-hook-form";
 import z from "zod";
 
 type ProductPreviewSectionProps = {
-  form: UseFormReturn<z.infer<typeof productInsertSchema>>;
+  form: UseFormReturn<z.infer<typeof productUpdateSchema>>;
   name?: string | null;
 };
 

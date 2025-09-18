@@ -21,7 +21,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
 import { UserAvatar } from "@/modules/auth/ui/components/user-avatar";
-import { productInsertSchema } from "@/modules/products/schema";
+import {
+  productInsertSchema,
+  productUpdateSchema,
+} from "@/modules/products/schema";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -46,13 +49,27 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { v4 as uuid } from "uuid";
+import { DEFAULT_LIMIT } from "@/constant";
+import { closestCenter, DndContext, DragEndEvent } from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { ProductDetailSortable } from "../components/dashboard-product-detail-sortable";
 
 type ProductDetailFormProps = {
-  form: UseFormReturn<z.infer<typeof productInsertSchema>>;
+  form: UseFormReturn<z.infer<typeof productUpdateSchema>>;
   name?: string | null;
+  productId: string;
 };
 
-export const ProductDetailForm = ({ form, name }: ProductDetailFormProps) => {
+export const ProductDetailForm = ({
+  form,
+  name,
+  productId,
+}: ProductDetailFormProps) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -63,12 +80,23 @@ export const ProductDetailForm = ({ form, name }: ProductDetailFormProps) => {
   const images = form.watch("images");
 
   const product = useMutation(
-    trpc.products.create.mutationOptions({
+    trpc.products.update.mutationOptions({
       onSuccess: async () => {
-        // TODO revalidate get many products
-        await queryClient.invalidateQueries();
+        // TODO revalidate get many products get one
+        Promise.all([
+          queryClient.invalidateQueries(
+            trpc.products.getMany.infiniteQueryOptions({
+              limit: DEFAULT_LIMIT,
+            })
+          ),
+          queryClient.invalidateQueries(
+            trpc.products.getOne.queryOptions({
+              id: productId,
+            })
+          ),
+        ]);
         form.reset();
-        router.push("/dashboard");
+        router.push("/dashboard/product");
       },
       onError: (error) => {
         toast.error(error.message);
@@ -77,12 +105,16 @@ export const ProductDetailForm = ({ form, name }: ProductDetailFormProps) => {
   );
 
   // Perbaikan 3: Ubah `handleSubmit` untuk memanggil mutation
-  const handleSubmit = async (values: z.infer<typeof productInsertSchema>) => {
+  const handleSubmit = async (values: z.infer<typeof productUpdateSchema>) => {
+    if (form.getValues("images").length === 0) {
+      toast.error("Produk harus memiliki minimal 1 gambar");
+      return;
+    }
     await product.mutateAsync(values);
   };
 
   const handleImageUpload = (res: any) => {
-    const newImage = { url: res[0].url, order: images.length };
+    const newImage = { id: "", url: res[0].url, order: images.length };
     // Perbaikan 4: Update state gambar menggunakan `form.setValue`
     form.setValue("images", [...images, newImage], { shouldValidate: true });
     toast.success("Gambar berhasil diupload");
@@ -91,6 +123,22 @@ export const ProductDetailForm = ({ form, name }: ProductDetailFormProps) => {
   const removeImage = (index: number) => {
     const updatedImages = images.filter((_, i) => i !== index);
     form.setValue("images", updatedImages, { shouldValidate: true });
+  };
+
+  const handleDragEndImage = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = parseInt(active.id as string, 10);
+    const newIndex = parseInt(over.id as string, 10);
+
+    const reordered = arrayMove(images, oldIndex, newIndex).map((img, i) => ({
+      ...img,
+      order: i,
+    }));
+
+    form.setValue("images", reordered, { shouldValidate: true });
   };
 
   const { data: categories } = useSuspenseQuery(
@@ -127,28 +175,26 @@ export const ProductDetailForm = ({ form, name }: ProductDetailFormProps) => {
             />
 
             {images.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                {images.map((image, index) => (
-                  <div key={index} className="relative group">
-                    <Image
-                      src={image.url}
-                      alt={`Product image ${index + 1}`}
-                      width={125}
-                      height={125}
-                      className="rounded-md object-cover w-full h-32"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
-                      onClick={() => removeImage(index)}
-                    >
-                      <span className="text-lg">×</span>
-                    </Button>
+              <DndContext
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEndImage}
+              >
+                <SortableContext
+                  items={images.map((_, i) => i.toString())}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                    {images.map((image, index) => (
+                      <ProductDetailSortable
+                        key={index}
+                        image={image}
+                        index={index}
+                        onRemove={() => removeImage(index)}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
           <FormField
@@ -239,7 +285,7 @@ export const ProductDetailForm = ({ form, name }: ProductDetailFormProps) => {
             )}
           />
           {/* Perbaikan 7: Tambahkan status loading/disabled pada tombol */}
-          <Button type="submit">Tambah Produk</Button>
+          <Button type="submit">Ubah Produk</Button>
         </form>
       </Form>
     </div>
