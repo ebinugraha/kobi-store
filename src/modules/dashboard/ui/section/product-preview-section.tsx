@@ -6,7 +6,7 @@ import { UserAvatar } from "@/modules/auth/ui/components/user-avatar";
 import {
   productInsertSchema,
   productUpdateSchema,
-} from "@/modules/products/schema";
+} from "@/modules/dashboard/schema";
 import Image from "next/image";
 import { UseFormReturn } from "react-hook-form";
 import z from "zod";

@@ -1,18 +1,24 @@
-import { ProductDetailView } from "@/modules/dashboard/ui/views/product-detail-view";
+import { ProductView } from "@/modules/products/ui/views/product-view";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 interface PageProps {
-  params: Promise<{ productId: string }>;
+  params: Promise<{
+    productId: string;
+  }>;
 }
 
 const Page = async ({ params }: PageProps) => {
   const { productId } = await params;
 
-  await prefetch(trpc.productsDashboard.getOne.queryOptions({ id: productId }));
+  prefetch(
+    trpc.product.getOne.queryOptions({
+      id: productId,
+    })
+  );
 
   return (
     <HydrateClient>
-      <ProductDetailView productId={productId} />
+      <ProductView productId={productId} />
     </HydrateClient>
   );
 };

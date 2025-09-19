@@ -4,7 +4,7 @@ import { authClient } from "@/lib/auth-client";
 import {
   productInsertSchema,
   productUpdateSchema,
-} from "@/modules/products/schema";
+} from "@/modules/dashboard/schema";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -42,7 +42,7 @@ const ProductDetailViewSuspense = ({ productId }: ProductDetailViewProps) => {
   const trpc = useTRPC();
 
   const product = useSuspenseQuery(
-    trpc.products.getOne.queryOptions({ id: productId })
+    trpc.productsDashboard.getOne.queryOptions({ id: productId })
   ).data;
 
   // 1. Inisialisasi useForm ada di level tertinggi (halaman ini).
@@ -88,7 +88,7 @@ const ProductDetailViewSuspense = ({ productId }: ProductDetailViewProps) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" side="bottom">
               <DropdownMenuItem asChild>
-                <Link href={`/product/${productId}`}>
+                <Link href={`/products/${productId}`}>
                   <Eye className="size-4 mr-2" />
                   Live produk
                 </Link>

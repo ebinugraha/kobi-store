@@ -22,7 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
 import { UserAvatar } from "@/modules/auth/ui/components/user-avatar";
-import { productInsertSchema } from "@/modules/products/schema";
+import { productInsertSchema } from "@/modules/dashboard/schema";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -64,10 +64,10 @@ export const CreateFormSection = ({ form, name }: CreateFormSectionProps) => {
   const images = form.watch("images");
 
   const product = useMutation(
-    trpc.products.create.mutationOptions({
+    trpc.productsDashboard.create.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(
-          trpc.products.getMany.queryOptions({ limit: DEFAULT_LIMIT })
+          trpc.productsDashboard.getMany.queryOptions({ limit: DEFAULT_LIMIT })
         );
         form.reset();
         router.push("/dashboard");

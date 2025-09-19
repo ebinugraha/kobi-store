@@ -4,7 +4,7 @@ import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 const Page = async () => {
   await prefetch(
-    trpc.products.getMany.infiniteQueryOptions({
+    trpc.productsDashboard.getMany.infiniteQueryOptions({
       limit: DEFAULT_LIMIT,
     })
   );
