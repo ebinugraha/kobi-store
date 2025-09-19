@@ -18,7 +18,7 @@ export const DashboardNavbarMenu = () => {
         <div className="h-2 w-2 bg-red-500 rounded-full absolute top-[-3px] right-[-3px]" />
       </div>
       <Link href={"/dashboard/create"}>
-        <Button variant={"secondary"} size={"sm"}>
+        <Button variant={"default"} size={"sm"}>
           <PackagePlus />
           <span className="text-xs">Jual produk</span>
         </Button>

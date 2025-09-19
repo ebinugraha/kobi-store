@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"; // BARU: Import Button
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/modules/auth/ui/components/user-avatar";
-import { productInsertSchema } from "@/modules/products/schema";
+import { productInsertSchema } from "@/modules/dashboard/schema";
 import Image from "next/image";
 import { UseFormReturn } from "react-hook-form";
 import z from "zod";

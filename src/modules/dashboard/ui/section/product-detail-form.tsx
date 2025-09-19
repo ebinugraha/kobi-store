@@ -24,7 +24,7 @@ import { UserAvatar } from "@/modules/auth/ui/components/user-avatar";
 import {
   productInsertSchema,
   productUpdateSchema,
-} from "@/modules/products/schema";
+} from "@/modules/dashboard/schema";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -54,6 +54,7 @@ import { DEFAULT_LIMIT } from "@/constant";
 import { closestCenter, DndContext, DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
+  horizontalListSortingStrategy,
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
@@ -80,23 +81,23 @@ export const ProductDetailForm = ({
   const images = form.watch("images");
 
   const product = useMutation(
-    trpc.products.update.mutationOptions({
+    trpc.productsDashboard.update.mutationOptions({
       onSuccess: async () => {
         // TODO revalidate get many products get one
         Promise.all([
           queryClient.invalidateQueries(
-            trpc.products.getMany.infiniteQueryOptions({
+            trpc.productsDashboard.getMany.infiniteQueryOptions({
               limit: DEFAULT_LIMIT,
             })
           ),
           queryClient.invalidateQueries(
-            trpc.products.getOne.queryOptions({
+            trpc.productsDashboard.getOne.queryOptions({
               id: productId,
             })
           ),
         ]);
-        form.reset();
         router.push("/dashboard/product");
+        form.reset();
       },
       onError: (error) => {
         toast.error(error.message);
@@ -110,6 +111,7 @@ export const ProductDetailForm = ({
       toast.error("Produk harus memiliki minimal 1 gambar");
       return;
     }
+    console.log(values);
     await product.mutateAsync(values);
   };
 
@@ -120,18 +122,18 @@ export const ProductDetailForm = ({
     toast.success("Gambar berhasil diupload");
   };
 
-  const removeImage = (index: number) => {
-    const updatedImages = images.filter((_, i) => i !== index);
+  const removeImage = (id: string) => {
+    const updatedImages = images.filter((image) => image.id !== id);
     form.setValue("images", updatedImages, { shouldValidate: true });
   };
 
   const handleDragEndImage = (event: DragEndEvent) => {
     const { active, over } = event;
-
     if (!over || active.id === over.id) return;
 
-    const oldIndex = parseInt(active.id as string, 10);
-    const newIndex = parseInt(over.id as string, 10);
+    const oldIndex = images.findIndex((img) => img.id === active.id);
+    const newIndex = images.findIndex((img) => img.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
 
     const reordered = arrayMove(images, oldIndex, newIndex).map((img, i) => ({
       ...img,
@@ -180,16 +182,15 @@ export const ProductDetailForm = ({
                 onDragEnd={handleDragEndImage}
               >
                 <SortableContext
-                  items={images.map((_, i) => i.toString())}
-                  strategy={verticalListSortingStrategy}
+                  items={images.map((img) => img.id)} // ✅ pakai id unik
+                  strategy={horizontalListSortingStrategy}
                 >
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                    {images.map((image, index) => (
+                    {images.map((image) => (
                       <ProductDetailSortable
-                        key={index}
+                        key={image.id}
                         image={image}
-                        index={index}
-                        onRemove={() => removeImage(index)}
+                        onRemove={() => removeImage(image.id)}
                       />
                     ))}
                   </div>

@@ -39,7 +39,11 @@ export const InfiniteScroll = ({
       ref={!isManual ? loaderRef : undefined}
       className="py-4 text-center text-muted-foreground text-sm"
     >
-      {isFetchingNextPage && <Loader2 className="animate-spin" />}
+      {isFetchingNextPage && (
+        <div>
+          <Loader2 className="animate-spin" />
+        </div>
+      )}
       {!isFetchingNextPage && hasNextPage && isManual && (
         <Button variant={"outline"} size={"sm"} onClick={fetchNextPage}>
           Load more

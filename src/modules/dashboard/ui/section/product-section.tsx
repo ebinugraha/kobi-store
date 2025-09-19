@@ -104,7 +104,7 @@ const ProductSectionSuspense = () => {
   const router = useRouter();
 
   const data = useSuspenseInfiniteQuery(
-    trpc.products.getMany.infiniteQueryOptions(
+    trpc.productsDashboard.getMany.infiniteQueryOptions(
       {
         limit: DEFAULT_LIMIT,
       },

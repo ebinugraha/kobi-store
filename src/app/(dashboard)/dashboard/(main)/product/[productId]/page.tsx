@@ -8,7 +8,7 @@ interface PageProps {
 const Page = async ({ params }: PageProps) => {
   const { productId } = await params;
 
-  await prefetch(trpc.products.getOne.queryOptions({ id: productId }));
+  await prefetch(trpc.productsDashboard.getOne.queryOptions({ id: productId }));
 
   return (
     <HydrateClient>

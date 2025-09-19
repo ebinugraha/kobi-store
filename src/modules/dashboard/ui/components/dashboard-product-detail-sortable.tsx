@@ -5,17 +5,15 @@ import { X } from "lucide-react";
 import Image from "next/image";
 
 interface ProductDetailSortableProps {
-  image: { url: string; order: number };
-  index: number;
+  image: { id: string; url: string; order: number };
   onRemove: () => void;
 }
 export const ProductDetailSortable = ({
   image,
-  index,
   onRemove,
 }: ProductDetailSortableProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: index.toString() });
+    useSortable({ id: image.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -32,7 +30,7 @@ export const ProductDetailSortable = ({
     >
       <Image
         src={image.url}
-        alt={`Product image ${index + 1}`}
+        alt={`Product image`}
         width={125}
         height={125}
         className="rounded-md object-cover w-full h-32"
