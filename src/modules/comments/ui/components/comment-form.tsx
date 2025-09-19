@@ -12,6 +12,7 @@ import { UserAvatar } from "@/modules/auth/ui/components/user-avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { DEFAULT_LIMIT } from "@/constant";
 
 interface CommentFormProps {
   productId: string;
@@ -44,8 +45,14 @@ export const CommentForm = ({
   const create = useMutation(
     trpc.comments.create.mutationOptions({
       onSuccess: async () => {
+        await queryClient.invalidateQueries(
+          trpc.comments.getMany.infiniteQueryOptions({
+            limit: DEFAULT_LIMIT,
+            productId: productId,
+          })
+        );
         form.reset();
-        onSuccess();
+        toast.success("Nigga button");
       },
       onError: (error) => {
         toast.error(error.message);
@@ -69,27 +76,29 @@ export const CommentForm = ({
   return (
     <Form {...form}>
       <form className="flex gap-4" onSubmit={form.handleSubmit(handleSubmit)}>
-        <UserAvatar size={"sm"} />
         <div className="w-full flex flex-1 flex-col">
-          <FormField
-            control={form.control}
-            name="value"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    placeholder={
-                      variant === "replies"
-                        ? "Reply this comment"
-                        : "Add a comment"
-                    }
-                    className="resize-none bg-transparent overflow-hidden min-h-0"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+          <div className="w-full items-center flex gap-x-4 flex-1">
+            <UserAvatar />
+            <FormField
+              control={form.control}
+              name="value"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder={
+                        variant === "replies"
+                          ? "Reply this comment"
+                          : "Add a comment"
+                      }
+                      className="w-full resize-none bg-transparent overflow-hidden min-h-0"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
           <div className="justify-end gap-2 mt-2 flex">
             <Button variant={"ghost"} type="button" onClick={handleCancel}>
               Cancel

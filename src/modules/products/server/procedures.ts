@@ -58,7 +58,8 @@ export const productRouter = createTRPCRouter({
       const productImage = await db
         .select()
         .from(productImages)
-        .where(eq(productImages.productId, existingProduct.id));
+        .where(eq(productImages.productId, existingProduct.id))
+        .orderBy(productImages.order);
 
       const result = {
         ...existingProduct,

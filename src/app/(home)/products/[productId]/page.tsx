@@ -1,3 +1,4 @@
+import { DEFAULT_LIMIT } from "@/constant";
 import { ProductView } from "@/modules/products/ui/views/product-view";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
@@ -10,11 +11,19 @@ interface PageProps {
 const Page = async ({ params }: PageProps) => {
   const { productId } = await params;
 
-  prefetch(
-    trpc.product.getOne.queryOptions({
-      id: productId,
-    })
-  );
+  Promise.all([
+    prefetch(
+      trpc.product.getOne.queryOptions({
+        id: productId,
+      })
+    ),
+    prefetch(
+      trpc.comments.getMany.infiniteQueryOptions({
+        limit: DEFAULT_LIMIT,
+        productId: productId,
+      })
+    ),
+  ]);
 
   return (
     <HydrateClient>
