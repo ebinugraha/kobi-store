@@ -1,5 +1,6 @@
 "use client";
 
+import { CommentSection } from "../section/comment-section";
 import { ContentSection } from "../section/content-section";
 
 interface ProductViewProps {
@@ -13,8 +14,8 @@ export const ProductView = ({ productId }: ProductViewProps) => {
         <div className="flex flex-col border rounded-md px-8">
           <ContentSection productId={productId} />
         </div>
-        <div className="flex flex-col py-2.5 bg-gray-50 rounded-md px-4">
-          Comment section
+        <div className="flex flex-col border rounded-md px-8">
+          <CommentSection productId={productId} />
         </div>
         <div className="flex flex-col py-2.5 bg-gray-50 rounded-md px-4">
           Suggestion section

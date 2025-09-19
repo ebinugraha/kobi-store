@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
 import { products } from "./product";
 import { productView } from "./product-view";
+import { comments } from "./comment";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -22,4 +23,5 @@ export const user = pgTable("user", {
 export const userRelations = relations(user, ({ many }) => ({
   products: many(products),
   productViews: many(productView),
+  comments: many(comments),
 }));

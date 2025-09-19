@@ -11,6 +11,7 @@ import { categories } from "./categories";
 import { relations } from "drizzle-orm";
 import { productImages } from "./product-images";
 import { productView } from "./product-view";
+import { comments } from "./comment";
 
 export const products = pgTable("products", {
   id: text("id")
@@ -45,4 +46,5 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   }),
   productImages: many(productImages),
   productViews: many(productView),
+  comments: many(comments),
 }));
